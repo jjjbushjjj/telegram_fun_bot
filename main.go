@@ -23,16 +23,8 @@ func printOutput(outs []byte) string {
 
 func ProcessCommand(command string) (out string) {
 	switch command {
-	case "code":
-		cmd := exec.Command("cat", "/home/bush/git/go/src/github.com/jjjbushjjj/zabbix_to_telegram/main.go")
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			log.Println(err)
-		}
-		log.Println(output)
-		out = printOutput(output)
 	case "help":
-		out = "type /sayhi or /status.\n To show calendar /calendar.\n /code to see my code.\n To get exchange rates type /courses.\n To get random Fun pic type /funpic.\n To get current weather type /weather"
+		out = "type /sayhi or /status.\n To show calendar /calendar.\n To get exchange rates type /courses.\n To get random Fun pic type /funpic.\n To get current weather type /weather"
 	case "sayhi":
 		out = "Hi :)"
 	case "status":
@@ -43,8 +35,6 @@ func ProcessCommand(command string) (out string) {
 		out = printOutput(output)
 	case "courses":
 		out = courses.GetCourses()
-	case "Maxbithday":
-		out = "Max Bithday is on 2017/01/19"
 	case "funpic":
 		out = fun_pic.GetFunPic()
 	case "weather":
