@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 	"os/exec"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/jjjbushjjj/telegram_fun_bot/ansible_snippets"
 	"github.com/jjjbushjjj/telegram_fun_bot/courses"
 	"github.com/jjjbushjjj/telegram_fun_bot/fun_pic"
 	"github.com/jjjbushjjj/telegram_fun_bot/weather"
@@ -21,10 +19,10 @@ func printOutput(outs []byte) string {
 	return ""
 }
 
-func ProcessCommand(command string) (out string) {
+func ProcessCommand(command string, args string) (out string) {
 	switch command {
 	case "help":
-		out = "type /sayhi or /status.\n To show calendar /calendar.\n To get exchange rates type /courses.\n To get random Fun pic type /funpic.\n To get current weather type /weather"
+		out = "type /sayhi or /status.\n To show calendar /calendar.\n To get exchange rates type /courses.\n To get random Fun pic type /funpic.\n To get current weather type /weather\n To get doc for ansible module type: /ansible_module <modulename>"
 	case "sayhi":
 		out = "Hi :)"
 	case "status":
@@ -39,6 +37,8 @@ func ProcessCommand(command string) (out string) {
 		out = fun_pic.GetFunPic()
 	case "weather":
 		out = weather.Get_weather()
+	case "ansible_module":
+		out = ansible_snippets.Get_snippet(args)
 	default:
 		out = "I don't know that command"
 	}
@@ -49,25 +49,26 @@ func main() {
 
 	// proxyUrl, err := url.Parse("socks5://794845572:xsn2GdDa@phobos.public.opennetwork.cc:1090")
 	// proxyUrl, err := url.Parse("http://51.255.115.231:8080") // some proxy from internet This one is French
-	proxyUrl, err := url.Parse("http://167.99.74.125:3128") // some proxy from internet This one is French
+	// proxyUrl, err := url.Parse("http://167.99.74.125:3128") // some proxy from internet This one is French
 	//Create custom http client and transport for telegram access
-	tr := &http.Transport{
-		Proxy: http.ProxyURL(proxyUrl),
-	}
-	tg_client := &http.Client{Transport: tr}
+	// tr := &http.Transport{
+	// 	Proxy: http.ProxyURL(proxyUrl),
+	// }
+	// tg_client := &http.Client{Transport: tr}
 
 	// This will overwrite ALL http transports so all http requests will use proxy server
 	// http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 
-	resp, err := tg_client.Get("https://api.telegram.org/bot609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U/getMe")
-	if err != nil {
-		panic(err)
-	}
+	// resp, err := tg_client.Get("https://api.telegram.org/bot609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U/getMe")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	fmt.Println(resp)
+	// fmt.Println(resp)
 
 	// try to use api
-	bot, err := tgbotapi.NewBotAPIWithClient("609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U", tg_client)
+	// bot, err := tgbotapi.NewBotAPIWithClient("609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U", tg_client)
+	bot, err := tgbotapi.NewBotAPI("609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -104,26 +105,28 @@ func main() {
 			if update.ChannelPost.IsCommand() {
 				msg = tgbotapi.NewMessage(update.ChannelPost.Chat.ID, "")
 				cmd := update.ChannelPost.Command()
+				args := update.ChannelPost.CommandArguments()
 				// if cmd == "Maxbithday" {
 				// 	msg_photo := tgbotapi.NewSetChatPhotoUpload(update.ChannelPost.Chat.ID, "IMG_2019-01-19_130949.jpg")
 				// 	bot.SetChatPhoto(msg_photo)
 				// 	continue
 				// }
-				msg.Text = ProcessCommand(cmd)
+				msg.Text = ProcessCommand(cmd, args)
 			}
 
 		case update.Message != nil:
 			// This stuff work when you send messages directly to bot
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 			msg = tgbotapi.NewMessage(update.Message.Chat.ID, "")
-			if update.Message.From.UserName != "jjjbushjjj" {
-				log.Printf("This must be rejected Got message from  [%s] unknown user", update.Message.From.UserName)
-				msg.Text = "Sorry i would accept commands only from my creator you are not him"
-			}
+			// if update.Message.From.UserName != "jjjbushjjj" {
+			// 	log.Printf("This must be rejected Got message from  [%s] unknown user", update.Message.From.UserName)
+			// 	msg.Text = "Sorry i would accept commands only from my creator you are not him"
+			// }
 
 			if update.Message.IsCommand() {
 				cmd := update.Message.Command()
-				msg.Text = ProcessCommand(cmd)
+				args := update.Message.CommandArguments()
+				msg.Text = ProcessCommand(cmd, args)
 			}
 
 		}
