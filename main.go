@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"time"
 
@@ -45,6 +48,10 @@ func ProcessCommand(command string, args string) (out string) {
 	return
 }
 
+type Configuration struct {
+	Api_token string
+}
+
 func main() {
 
 	// proxyUrl, err := url.Parse("socks5://794845572:xsn2GdDa@phobos.public.opennetwork.cc:1090")
@@ -66,9 +73,24 @@ func main() {
 
 	// fmt.Println(resp)
 
+	// Read config file json based
+	file, err := os.Open("fun_bot.json")
+	if err != nil {
+		log.Panic(err)
+	}
+	configuration := Configuration{}
+
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&configuration)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	fmt.Println(configuration.Api_token)
+
+	file.Close()
 	// try to use api
-	// bot, err := tgbotapi.NewBotAPIWithClient("609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U", tg_client)
-	bot, err := tgbotapi.NewBotAPI("609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U")
+	bot, err := tgbotapi.NewBotAPI(configuration.Api_token)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -106,11 +128,6 @@ func main() {
 				msg = tgbotapi.NewMessage(update.ChannelPost.Chat.ID, "")
 				cmd := update.ChannelPost.Command()
 				args := update.ChannelPost.CommandArguments()
-				// if cmd == "Maxbithday" {
-				// 	msg_photo := tgbotapi.NewSetChatPhotoUpload(update.ChannelPost.Chat.ID, "IMG_2019-01-19_130949.jpg")
-				// 	bot.SetChatPhoto(msg_photo)
-				// 	continue
-				// }
 				msg.Text = ProcessCommand(cmd, args)
 			}
 
@@ -118,10 +135,6 @@ func main() {
 			// This stuff work when you send messages directly to bot
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 			msg = tgbotapi.NewMessage(update.Message.Chat.ID, "")
-			// if update.Message.From.UserName != "jjjbushjjj" {
-			// 	log.Printf("This must be rejected Got message from  [%s] unknown user", update.Message.From.UserName)
-			// 	msg.Text = "Sorry i would accept commands only from my creator you are not him"
-			// }
 
 			if update.Message.IsCommand() {
 				cmd := update.Message.Command()
