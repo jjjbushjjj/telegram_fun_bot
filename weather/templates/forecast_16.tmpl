@@ -1,0 +1,18 @@
+City: {{.City.Name}}
+
+{{- range .List }}
+Date: {{.Dt | formatAsDate}}
+Temperature:
+  Day: {{.Temp.Day}}
+  Min: {{.Temp.Min}}
+  Max: {{.Temp.Max}}
+  Night: {{.Temp.Night}}
+  Eve: {{.Temp.Eve}}
+  Morn: {{.Temp.Morn}}
+
+{{- range .Weather_desc }}
+Mainly: {{.Main}} ({{.Desc}})
+http://openweathermap.org/img/w/{{.Icon}}.png
+{{- end }}
+####################################
+{{- end }}

@@ -1,0 +1,15 @@
+City: {{.City.Name}}
+
+{{- range .List }}
+Date: {{.Dt | formatAsDate}}
+                                    Humidity: {{.Data.Humidity}} %
+                                    Pressure: {{.Data.Pressure}} hPa
+                                    Temperature: {{.Data.Temp}} C
+                                    Clouds: {{.Clouds.All}} %
+                                    Wind speed: {{.Wind.Speed}} m/s
+                                    {{- range .Weather_desc }}
+                                    Mainly: {{.Main}} ({{.Desc}})
+                                    http://openweathermap.org/img/w/{{.Icon}}.png
+                                    {{- end }}
+#####################################################################
+{{- end }}
