@@ -144,6 +144,7 @@ func main() {
 
 		}
 		log.Printf("Sending [%s]", msg.Text)
+		msg.ParseMode = "Markdown"
 		if msg.Text != "" {
 			bot.Send(msg)
 		}
