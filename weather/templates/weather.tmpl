@@ -1,15 +1,11 @@
-City: {{.Town}}
-Humidity: {{.Data.Humidity}} %
-Pressure: {{.Data.Pressure}} hPa
-Temperature: {{.Data.Temp}} C
-Clouds: {{.Clouds.All}} %
-Wind speed: {{.Wind.Speed}} m/s
-
+<b>City</b>: {{.Town}}
+<b>Humidity</b>: {{.Data.Humidity}} %
+<b>Pressure</b>: {{.Data.Pressure}} hPa
+<b>Temperature</b>: {{.Data.Temp}} &deg;C
+<b>Clouds</b>: {{.Clouds.All}} %
+<b>Wind</b> speed: {{.Wind.Speed}} m/s
 
 {{- range .Weather_desc }}
-Mainly: {{.Main}} ({{.Desc}})
-http://openweathermap.org/img/w/{{.Icon}}.png
+<b>Mainly</b>: {{.Main}} ({{.Desc}})
+<a href="http://openweathermap.org/img/w/{{.Icon}}.png">&#8205;</a>
 {{- end }}
-
-
-Timespamp: {{.Dt}}

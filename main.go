@@ -25,22 +25,27 @@ func printOutput(outs []byte) string {
 func ProcessCommand(command string, args string) (out string) {
 	switch command {
 	case "help":
+		Conf.Parse_mode = ""
 		out = "type /sayhi or /status.\n To show calendar /calendar.\n To get exchange rates type /courses.\n To get random Fun pic type /funpic.\n To get current weather type /weather\n To get doc for ansible module type: /ansible_module <modulename>"
 	case "sayhi":
 		out = "Hi :)"
 	case "status":
 		out = "I'm ok."
 	case "calendar":
+		Conf.Parse_mode = ""
 		cmd := exec.Command("calendar")
 		output, _ := cmd.CombinedOutput()
 		out = printOutput(output)
 	case "courses":
 		out = courses.GetCourses()
 	case "funpic":
+		Conf.Parse_mode = "HTML"
 		out = fun_pic.GetFunPic()
 	case "weather":
+		Conf.Parse_mode = "HTML"
 		out = weather.Get_weather()
 	case "ansible_module":
+		Conf.Parse_mode = ""
 		out = ansible_snippets.Get_snippet(args)
 	default:
 		out = "I don't know that command"
@@ -49,48 +54,32 @@ func ProcessCommand(command string, args string) (out string) {
 }
 
 type Configuration struct {
-	Api_token string
+	Api_token  string
+	Parse_mode string
 }
 
+var Conf = Configuration{}
+
 func main() {
-
-	// proxyUrl, err := url.Parse("socks5://794845572:xsn2GdDa@phobos.public.opennetwork.cc:1090")
-	// proxyUrl, err := url.Parse("http://51.255.115.231:8080") // some proxy from internet This one is French
-	// proxyUrl, err := url.Parse("http://167.99.74.125:3128") // some proxy from internet This one is French
-	//Create custom http client and transport for telegram access
-	// tr := &http.Transport{
-	// 	Proxy: http.ProxyURL(proxyUrl),
-	// }
-	// tg_client := &http.Client{Transport: tr}
-
-	// This will overwrite ALL http transports so all http requests will use proxy server
-	// http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
-
-	// resp, err := tg_client.Get("https://api.telegram.org/bot609231646:AAErrYiuODkTI6UgvruuIBzSmydsqKku59U/getMe")
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// fmt.Println(resp)
 
 	// Read config file json based
 	file, err := os.Open("fun_bot.json")
 	if err != nil {
 		log.Panic(err)
 	}
-	configuration := Configuration{}
 
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&configuration)
+	err = decoder.Decode(&Conf)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	fmt.Println(configuration.Api_token)
+	fmt.Println(Conf.Api_token)
+	fmt.Println(Conf.Parse_mode)
 
 	file.Close()
 	// try to use api
-	bot, err := tgbotapi.NewBotAPI(configuration.Api_token)
+	bot, err := tgbotapi.NewBotAPI(Conf.Api_token)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -110,13 +99,6 @@ func main() {
 	updates.Clear()
 
 	var msg tgbotapi.MessageConfig
-	// var doc tgbotapi.DocumentConfig
-	// msg = tgbotapi.NewMessageToChannel("@test_zabbix_bot", "Hello everyone!")
-	// doc = tgbotapi.NewDocumentUpload(794845572, "IMG_2019-01-19_130949.jpg")
-	// bot.Send(msg)
-	// bot.Send(doc)
-	// msg = tgbotapi.NewMessage(794845572, "https://cdn.jpg.wtf/futurico/33/5c/1455974066-335c822a23665a3d7f74727a7a15f3e3.jpeg")
-	// bot.Send(msg)
 	for update := range updates {
 		msg.Text = ""
 
@@ -143,8 +125,8 @@ func main() {
 			}
 
 		}
-		log.Printf("Sending [%s]", msg.Text)
-		msg.ParseMode = "Markdown"
+		msg.ParseMode = Conf.Parse_mode
+		log.Printf("Sending [%s], parse_mode is: (%s)", msg.Text, msg.ParseMode)
 		if msg.Text != "" {
 			bot.Send(msg)
 		}

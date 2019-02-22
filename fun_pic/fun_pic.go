@@ -76,6 +76,6 @@ func GetFunPic() string {
 	// Find all links and process them with the function
 	// defined earlier
 	document.Find("a").Each(processElement)
-	fun_pic_link = fmt.Sprintf("https://i.imgflip.com/%s.jpg", randIntMapKey())
+	fun_pic_link = fmt.Sprintf("Enjoy: <a href=\"https://i.imgflip.com/%s.jpg\">&#8205;</a>", randIntMapKey())
 	return fun_pic_link
 }
