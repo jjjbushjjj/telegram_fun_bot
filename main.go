@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
-	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jjjbushjjj/telegram_fun_bot/ansible_snippets"
@@ -88,15 +88,12 @@ func main() {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-
-	updates, err := bot.GetUpdatesChan(u)
-
-	// Optional: wait for updates and clear them if you don't want to handle
-	// a large backlog of old messages
-	time.Sleep(time.Millisecond * 500)
-	updates.Clear()
+	_, err = bot.SetWebhook(tgbotapi.NewWebhook("https://tgbot.bushuev.xyz/" + bot.Token))
+	if err != nil {
+		log.Fatal(err)
+	}
+	updates := bot.ListenForWebhook("/" + bot.Token)
+	go http.ListenAndServe("127.0.0.1:8080", nil)
 
 	var msg tgbotapi.MessageConfig
 	for update := range updates {
